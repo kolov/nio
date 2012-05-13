@@ -9,6 +9,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Dimple Grizzy HTTP server.
+ * Starting point is
  * http://grizzly.java.net/nonav/docs/docbkx2.0/html/httpserverframework-samples.html
  */
 public class GrizzlyServer {
