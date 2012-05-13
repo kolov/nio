@@ -1,1 +1,3 @@
-From http://rox-xmlrpc.sourceforge.net/niotut/
+Different techinques for a server handling many concurrent request. Executing a request takes fized amount of time
+
+
