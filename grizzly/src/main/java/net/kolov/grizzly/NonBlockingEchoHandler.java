@@ -11,17 +11,14 @@ import java.io.IOException;
 import java.util.concurrent.*;
 
 /**
+ *
  * http://grizzly.java.net/nonav/docs/docbkx2.0/html/httpserverframework-samples.html
  * <p/>
  * Date: 5/9/12
  */
 public class NonBlockingEchoHandler extends HttpHandler {
 
-
     private final ScheduledExecutorService ses = Executors.newScheduledThreadPool(16);
-
-
-    // -------------------------------------------- Methods from HttpHandler
 
     private static int count = 0;
 
@@ -33,14 +30,10 @@ public class NonBlockingEchoHandler extends HttpHandler {
         final NIOReader in = request.getReader(false); // put the stream in non-blocking mode
         final NIOWriter out = response.getWriter();
 
-        long waitTime = 0;
-        if (request.getParameter("wait") != null) {
-            waitTime = Long.parseLong(request.getParameter("wait"));
-        }
+        final long waitTime = parseWaitTime(request);
 
         response.suspend();
 
-        final long finalWaitTime = waitTime;
         in.notifyAvailable(new ReadHandler() {
 
             @Override
@@ -66,10 +59,9 @@ public class NonBlockingEchoHandler extends HttpHandler {
                     public void run() {
                         //    System.out.println("" + System.currentTimeMillis() + ":running " + taskId );
                         try {
-                            out.write("waited " + finalWaitTime + "ms");
+                            out.write("waited " + waitTime + "ms");
                         } catch (IOException e) {
                             System.out.println("Error");
-                            return;
                         } finally {
                             try {
                                 in.close();
@@ -85,12 +77,20 @@ public class NonBlockingEchoHandler extends HttpHandler {
 
                         }
                     }
-                }, finalWaitTime, TimeUnit.MILLISECONDS);
+                }, waitTime, TimeUnit.MILLISECONDS);
             }
         }
 
         );
 
+    }
+
+    private long parseWaitTime(Request request) {
+        long waitTime = 0;
+        if (request.getParameter("wait") != null) {
+            waitTime = Long.parseLong(request.getParameter("wait"));
+        }
+        return waitTime;
     }
 
     private void echoAvailableData(NIOReader in, NIOWriter out, char[] buf)
